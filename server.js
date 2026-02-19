@@ -27,6 +27,7 @@ app.use(express.static(path.join(__dirname, '.')));
 
 const AuthUser = require('./models/AuthUser');
 const Material = require('./models/Material');
+const UserUpload = require('./models/UserUpload');
 const authMiddleware = require('./middleware/auth');
 
 // Configure multer for file upload
@@ -181,8 +182,8 @@ app.post('/upload-material', authMiddleware, upload.single('file'), async (req, 
 
         const fileUrl = imgbbResponse.data.data.url;
 
-        // Create new material with uploader info
-        const material = new Material({
+        // Create new user upload with uploader info
+        const userUpload = new UserUpload({
             title,
             type,
             semester,
@@ -195,16 +196,16 @@ app.post('/upload-material', authMiddleware, upload.single('file'), async (req, 
             status: 'pending' // Default status is pending
         });
 
-        await material.save();
+        await userUpload.save();
 
         res.status(201).json({
             success: true,
             message: 'Material uploaded successfully and is pending approval',
             material: {
-                id: material._id,
-                title: material.title,
-                status: material.status,
-                uploaderEmail: material.uploaderEmail
+                id: userUpload._id,
+                title: userUpload.title,
+                status: userUpload.status,
+                uploaderEmail: userUpload.uploaderEmail
             }
         });
 
@@ -226,12 +227,12 @@ app.get('/my-materials', authMiddleware, async (req, res) => {
         const skip = (page - 1) * limit;
 
         // Get only materials uploaded by this user
-        const materials = await Material.find({ uploaderId: req.user.userId })
+        const materials = await UserUpload.find({ uploaderId: req.user.userId })
             .sort({ uploadedAt: -1 })
             .skip(skip)
             .limit(limit);
 
-        const totalCount = await Material.countDocuments({ uploaderId: req.user.userId });
+        const totalCount = await UserUpload.countDocuments({ uploaderId: req.user.userId });
         const totalPages = Math.ceil(totalCount / limit);
 
         res.json({
@@ -263,10 +264,10 @@ app.put('/materials/:id', authMiddleware, async (req, res) => {
         const { id } = req.params;
         const { title, type, semester, subject, description } = req.body;
 
-        // Find material
-        const material = await Material.findById(id);
+        // Find user upload
+        const userUpload = await UserUpload.findById(id);
 
-        if (!material) {
+        if (!userUpload) {
             return res.status(404).json({
                 success: false,
                 message: 'Material not found'
@@ -274,7 +275,7 @@ app.put('/materials/:id', authMiddleware, async (req, res) => {
         }
 
         // Check if user is the owner
-        if (material.uploaderId.toString() !== req.user.userId) {
+        if (userUpload.uploaderId.toString() !== req.user.userId) {
             return res.status(403).json({
                 success: false,
                 message: 'You are not authorized to update this material'
@@ -282,18 +283,18 @@ app.put('/materials/:id', authMiddleware, async (req, res) => {
         }
 
         // Update fields
-        if (title) material.title = title;
-        if (type) material.type = type;
-        if (semester) material.semester = semester;
-        if (subject) material.subject = subject;
-        if (description !== undefined) material.description = description;
+        if (title) userUpload.title = title;
+        if (type) userUpload.type = type;
+        if (semester) userUpload.semester = semester;
+        if (subject) userUpload.subject = subject;
+        if (description !== undefined) userUpload.description = description;
 
-        await material.save();
+        await userUpload.save();
 
         res.json({
             success: true,
             message: 'Material updated successfully',
-            material: material
+            material: userUpload
         });
 
     } catch (error) {
@@ -311,10 +312,10 @@ app.delete('/materials/:id', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Find material
-        const material = await Material.findById(id);
+        // Find user upload
+        const userUpload = await UserUpload.findById(id);
 
-        if (!material) {
+        if (!userUpload) {
             return res.status(404).json({
                 success: false,
                 message: 'Material not found'
@@ -322,14 +323,14 @@ app.delete('/materials/:id', authMiddleware, async (req, res) => {
         }
 
         // Check if user is the owner
-        if (material.uploaderId.toString() !== req.user.userId) {
+        if (userUpload.uploaderId.toString() !== req.user.userId) {
             return res.status(403).json({
                 success: false,
                 message: 'You are not authorized to delete this material'
             });
         }
 
-        await Material.findByIdAndDelete(id);
+        await UserUpload.findByIdAndDelete(id);
 
         res.json({
             success: true,
@@ -383,7 +384,7 @@ app.get('/materials/:id', async (req, res) => {
             });
         }
 
-        const material = await Material.findById(id);
+        const material = await UserUpload.findById(id);
 
         if (!material) {
             return res.status(404).json({
@@ -428,13 +429,13 @@ app.patch('/materials/:id/status', authMiddleware, async (req, res) => {
             });
         }
 
-        const material = await Material.findByIdAndUpdate(
+        const userUpload = await UserUpload.findByIdAndUpdate(
             id,
             { status: status },
             { new: true }
         );
 
-        if (!material) {
+        if (!userUpload) {
             return res.status(404).json({
                 success: false,
                 message: 'Material not found'
@@ -444,7 +445,7 @@ app.patch('/materials/:id/status', authMiddleware, async (req, res) => {
         res.json({
             success: true,
             message: `Material ${status} successfully`,
-            material: material
+            material: userUpload
         });
 
     } catch (error) {
@@ -478,12 +479,12 @@ app.get('/admin/materials', authMiddleware, async (req, res) => {
             filter.status = status;
         }
 
-        const materials = await Material.find(filter)
+        const materials = await UserUpload.find(filter)
             .sort({ uploadedAt: -1 })
             .skip(skip)
             .limit(limit);
 
-        const totalCount = await Material.countDocuments(filter);
+        const totalCount = await UserUpload.countDocuments(filter);
         const totalPages = Math.ceil(totalCount / limit);
 
         res.json({

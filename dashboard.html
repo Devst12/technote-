@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>IT Learning Hub</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <style>
     * {
       margin: 0;
@@ -233,11 +235,12 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <header>
       <div class="logo">
-        📘 
+        <img src="logo.png" alt="TechNoteCore Logo" style="width: 50px; height: 50px; border-radius: 8px;">
         <div class="logo-text">
           <h1>TechNoteCore</h1>
           <p>Comprehensive Note Management System</p>
@@ -282,11 +285,11 @@
       try {
         const res = await fetch('http://localhost:5000/materials');
         const data = await res.json();
-        
+
         allMaterials = Array.isArray(data) ? data : (data.data || []);
-        
+
         console.log('Loaded materials:', allMaterials);
-        
+
         displaySemesterCards();
 
       } catch (err) {
@@ -307,7 +310,7 @@
 
       // Group materials by semester
       const semesterGroups = {};
-      
+
       allMaterials.forEach(item => {
         const semester = item.semester;
         if (!semesterGroups[semester]) {
@@ -351,14 +354,14 @@
     // Initialize filter buttons
     document.addEventListener('DOMContentLoaded', () => {
       const filterButtons = document.querySelectorAll('.filter-btn');
-      
+
       filterButtons.forEach(button => {
         button.addEventListener('click', (e) => {
           e.stopPropagation();
-          
+
           filterButtons.forEach(btn => btn.classList.remove('active'));
           e.target.classList.add('active');
-          
+
           const semester = e.target.dataset.semester;
 
           if (semester === 'all') {
@@ -375,4 +378,5 @@
   </script>
 
 </body>
+
 </html>

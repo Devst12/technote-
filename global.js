@@ -4,6 +4,9 @@
 function initSidebar() {
     const sidebar = document.getElementById('sidebar');
     if (sidebar) {
+        // Get current page to set active nav item
+        const currentPage = window.location.pathname.split('/').pop();
+
         // Add basic sidebar content if it's empty
         if (sidebar.innerHTML.trim() === '') {
             sidebar.innerHTML = `
@@ -12,11 +15,14 @@ function initSidebar() {
                         <h3>TechNoteCore</h3>
                     </div>
                     <nav class="sidebar-nav">
-                        <a href="dashboard.html" class="nav-item">
+                        <a href="dashboard.html" class="nav-item ${currentPage === 'dashboard.html' ? 'active' : ''}">
                             <i class="fas fa-home"></i> Dashboard
                         </a>
-                        <a href="upload.html" class="nav-item active">
+                        <a href="upload.html" class="nav-item ${currentPage === 'upload.html' ? 'active' : ''}">
                             <i class="fas fa-upload"></i> Upload Materials
+                        </a>
+                        <a href="my-materials.html" class="nav-item ${currentPage === 'my-materials.html' ? 'active' : ''}">
+                            <i class="fas fa-file-alt"></i> My Materials
                         </a>
                         <a href="index.html" class="nav-item">
                             <i class="fas fa-sign-out-alt"></i> Logout

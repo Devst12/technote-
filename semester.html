@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Semester Details - TechNoteCore</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     * {
@@ -58,7 +60,8 @@
       gap: 15px;
     }
 
-    .back-btn, .logout {
+    .back-btn,
+    .logout {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       padding: 12px 30px;
@@ -69,7 +72,8 @@
       display: inline-block;
     }
 
-    .back-btn:hover, .logout:hover {
+    .back-btn:hover,
+    .logout:hover {
       transform: translateY(-2px);
     }
 
@@ -213,11 +217,12 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <header>
       <div class="logo">
-        📘 
+        📘
         <div class="logo-text">
           <h1>TechNoteCore</h1>
           <p>Comprehensive Note Management System</p>
@@ -257,13 +262,13 @@
         // Fetch materials for this semester
         const res = await fetch(`http://localhost:5000/materials?semester=${encodeURIComponent(semesterName)}`);
         const data = await res.json();
-        
+
         const materials = Array.isArray(data) ? data : (data.data || []);
-        
+
         console.log('Loaded materials for', semesterName, ':', materials);
 
         // Update count
-        document.getElementById('semester-count').textContent = 
+        document.getElementById('semester-count').textContent =
           `${materials.length} Material${materials.length !== 1 ? 's' : ''} Available`;
 
         // Display materials
@@ -278,10 +283,10 @@
     function formatDate(dateString) {
       if (!dateString) return 'Unknown date';
       const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric' 
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
       });
     }
 
@@ -341,4 +346,5 @@
   </script>
 
 </body>
+
 </html>
