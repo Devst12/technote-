@@ -65,13 +65,51 @@ app.post('/login', async (req, res) => {
             });
         }
 
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-            return res.status(401).json({
+        // Check if user is locked out
+        const now = new Date();
+        if (user.lockUntil && now < user.lockUntil) {
+            const timeLeft = Math.ceil((user.lockUntil - now) / 1000); // in seconds
+            return res.status(429).json({
                 success: false,
-                message: 'Invalid email or password'
+                message: `Account locked. Please try again in ${timeLeft} seconds.`,
+                lockoutTime: timeLeft
             });
         }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            // Increment login attempts
+            user.loginAttempts += 1;
+
+            // Calculate lockout time based on number of attempts
+            if (user.loginAttempts >= 5) {
+                const baseLockTime = 90; // 90 seconds for first lock
+                const attemptMultiplier = Math.floor((user.loginAttempts - 1) / 5); // Every 5 attempts, double lock time
+                const lockSeconds = baseLockTime * (Math.pow(2, attemptMultiplier - 1));
+                user.lockUntil = new Date(now.getTime() + lockSeconds * 1000);
+            }
+
+            await user.save();
+
+            // Calculate remaining attempts
+            const remainingAttempts = Math.max(0, 5 - (user.loginAttempts % 5 || 5));
+            let message = 'Invalid email or password';
+            if (remainingAttempts <= 2) {
+                message += ` - ${remainingAttempts} attempts remaining`;
+            }
+
+            return res.status(401).json({
+                success: false,
+                message: message,
+                remainingAttempts: remainingAttempts,
+                isLocked: !!user.lockUntil
+            });
+        }
+
+        // Reset login attempts on successful login
+        user.loginAttempts = 0;
+        user.lockUntil = null;
+        await user.save();
 
         // Generate JWT token
         const token = jwt.sign(
@@ -226,18 +264,31 @@ app.get('/my-materials', authMiddleware, async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
 
-        // Get only materials uploaded by this user
-        const materials = await UserUpload.find({ uploaderId: req.user.userId })
-            .sort({ uploadedAt: -1 })
-            .skip(skip)
-            .limit(limit);
+        // Get approved materials from both collections
+        const [userUploads, materials] = await Promise.all([
+            UserUpload.find({
+                uploaderId: req.user.userId,
+                status: 'approved'
+            }).sort({ uploadedAt: -1 }),
+            Material.find({
+                uploaderId: req.user.userId,
+                status: 'approved'
+            }).sort({ uploadedAt: -1 })
+        ]);
 
-        const totalCount = await UserUpload.countDocuments({ uploaderId: req.user.userId });
+        // Combine and sort all materials
+        const allMaterials = [...userUploads, ...materials].sort((a, b) =>
+            new Date(b.uploadedAt) - new Date(a.uploadedAt)
+        );
+
+        // Apply pagination
+        const paginatedMaterials = allMaterials.slice(skip, skip + limit);
+        const totalCount = allMaterials.length;
         const totalPages = Math.ceil(totalCount / limit);
 
         res.json({
             success: true,
-            data: materials,
+            data: paginatedMaterials,
             pagination: {
                 currentPage: page,
                 totalPages: totalPages,

@@ -19,6 +19,8 @@
     <div class="right">
       <div class="login-card">
         <h2>Welcome Back</h2>
+        <h5>Defualt login</h5>
+        <p> user@example.com : userexample1234@USER</p>
         <p id="error-msg" style="color: red; display: none; margin-bottom: 10px; font-weight: bold;"></p>
         <p id="success-msg" style="color: green; display: none; margin-bottom: 10px; font-weight: bold;">Login
           successful! Redirecting...</p>
@@ -81,8 +83,28 @@
           }, 1000);
 
         } else {
-          // Show error message
+          // Show error message with styling based on type
           errorMsg.textContent = data.message || 'Login failed';
+
+          if (data.isLocked || response.status === 429) {
+            // Lockout message - red background with bold text
+            errorMsg.style.backgroundColor = '#f8d7da';
+            errorMsg.style.border = '1px solid #f5c6cb';
+            errorMsg.style.padding = '10px';
+            errorMsg.style.borderRadius = '5px';
+          } else if (data.remainingAttempts !== undefined) {
+            // Warning message for remaining attempts - yellow background
+            errorMsg.style.backgroundColor = '#fff3cd';
+            errorMsg.style.border = '1px solid #ffeaa7';
+            errorMsg.style.padding = '10px';
+            errorMsg.style.borderRadius = '5px';
+          } else {
+            // Default error message
+            errorMsg.style.backgroundColor = 'transparent';
+            errorMsg.style.border = 'none';
+            errorMsg.style.padding = '0';
+          }
+
           errorMsg.style.display = 'block';
 
           // Re-enable button
