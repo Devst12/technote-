@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Semester Details - TechNoteCore</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: white;
+      border-radius: 20px;
+      padding: 25px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-size: 2em;
+    }
+
+    .logo-text h1 {
+      font-size: 1.5rem;
+      color: #667eea;
+      margin-bottom: 5px;
+    }
+
+    .logo-text p {
+      font-size: 0.85rem;
+      color: #888;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 15px;
+    }
+
+    .back-btn, .logout {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px 30px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: transform 0.3s ease;
+      display: inline-block;
+    }
+
+    .back-btn:hover, .logout:hover {
+      transform: translateY(-2px);
+    }
+
+    .semester-header {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .semester-header h1 {
+      font-size: 2.5rem;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .semester-header p {
+      font-size: 1.1rem;
+      color: #666;
+    }
+
+    .materials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .material-card {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+    }
+
+    .material-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+    }
+
+    .material-thumbnail {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .material-content {
+      padding: 25px;
+    }
+
+    .material-type {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .material-title {
+      font-size: 1.4rem;
+      color: #333;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .material-subject {
+      font-size: 1rem;
+      color: #667eea;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .material-description {
+      font-size: 0.95rem;
+      color: #666;
+      margin-bottom: 15px;
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .material-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 15px;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .material-date {
+      font-size: 0.85rem;
+      color: #999;
+    }
+
+    .view-pdf-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: transform 0.3s ease;
+      display: inline-block;
+    }
+
+    .view-pdf-btn:hover {
+      transform: translateX(5px);
+    }
+
+    .no-materials {
+      text-align: center;
+      padding: 60px;
+      background: white;
+      border-radius: 20px;
+      color: #888;
+    }
+
+    .no-materials h3 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .materials-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        📘 
+        <div class="logo-text">
+          <h1>TechNoteCore</h1>
+          <p>Comprehensive Note Management System</p>
+        </div>
+      </div>
+      <div class="nav-buttons">
+        <a href="dashboard.html" class="back-btn">← Back to Dashboard</a>
+        <a href="index.html" class="logout">Logout</a>
+      </div>
+    </header>
+
+    <section class="semester-header">
+      <h1 id="semester-title">Loading...</h1>
+      <p id="semester-count">Loading materials...</p>
+    </section>
+
+    <section class="materials-grid" id="materials-container">
+      <!-- Material cards will be dynamically generated here -->
+    </section>
+  </div>
+
+  <script>
+    // Get semester from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const semesterName = urlParams.get('semester');
+
+    async function loadSemesterMaterials() {
+      try {
+        if (!semesterName) {
+          window.location.href = 'dashboard.html';
+          return;
+        }
+
+        // Update page title
+        document.getElementById('semester-title').textContent = semesterName;
+
+        // Fetch materials for this semester
+        const res = await fetch(`http://localhost:5000/materials?semester=${encodeURIComponent(semesterName)}`);
+        const data = await res.json();
+        
+        const materials = Array.isArray(data) ? data : (data.data || []);
+        
+        console.log('Loaded materials for', semesterName, ':', materials);
+
+        // Update count
+        document.getElementById('semester-count').textContent = 
+          `${materials.length} Material${materials.length !== 1 ? 's' : ''} Available`;
+
+        // Display materials
+        displayMaterials(materials);
+
+      } catch (err) {
+        console.error("Could not load semester materials:", err);
+        displayNoMaterials();
+      }
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return 'Unknown date';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    }
+
+    function displayMaterials(materials) {
+      const container = document.getElementById('materials-container');
+      container.innerHTML = '';
+
+      if (!materials || materials.length === 0) {
+        displayNoMaterials();
+        return;
+      }
+
+      materials.forEach(material => {
+        const card = document.createElement('div');
+        card.className = 'material-card';
+
+        const pdfUrl = material.fileUrl || '#';
+        const thumbnail = material.fileUrl || 'https://via.placeholder.com/400x200/667eea/ffffff?text=PDF+Document';
+        const uploadDate = formatDate(material.uploadedAt?.$date || material.uploadedAt);
+
+        card.innerHTML = `
+          <img src="${thumbnail}" alt="${material.title}" class="material-thumbnail" onerror="this.src='https://via.placeholder.com/400x200/667eea/ffffff?text=PDF+Document'">
+          <div class="material-content">
+            <span class="material-type">${material.type || 'Document'}</span>
+            <h2 class="material-title">${material.title || 'Untitled'}</h2>
+            <p class="material-subject">📖 ${material.subject || 'General'}</p>
+            <p class="material-description">${material.description || 'No description available.'}</p>
+            <div class="material-meta">
+              <span class="material-date">📅 ${uploadDate}</span>
+              <a href="${pdfUrl}" target="_blank" rel="noopener noreferrer" class="view-pdf-btn" onclick="event.stopPropagation()">
+                View PDF →
+              </a>
+            </div>
+          </div>
+        `;
+
+        // Make entire card clickable
+        card.addEventListener('click', () => {
+          window.open(pdfUrl, '_blank');
+        });
+
+        container.appendChild(card);
+      });
+    }
+
+    function displayNoMaterials() {
+      const container = document.getElementById('materials-container');
+      container.innerHTML = `
+        <div class="no-materials" style="grid-column: 1 / -1;">
+          <h3>📚 No Materials Found</h3>
+          <p>No study materials available for this semester yet.</p>
+        </div>
+      `;
+    }
+
+    window.onload = loadSemesterMaterials;
+  </script>
+
+</body>
+</html>
