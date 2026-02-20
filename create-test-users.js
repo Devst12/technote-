@@ -12,7 +12,7 @@ async function createTestUsers() {
         const testUsers = [
             {
                 email: 'user@example.com',
-                password: 'password123',
+                password: 'userexample1234@USER',
                 role: 'user'
             },
             {

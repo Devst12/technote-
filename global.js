@@ -1,5 +1,16 @@
 // Global JavaScript functions
 
+// Function to handle logout
+function handleLogout() {
+    // Clear localStorage
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userRole');
+
+    // Redirect to login page
+    window.location.href = 'index.html';
+}
+
 // Function to initialize sidebar (if needed)
 function initSidebar() {
     const sidebar = document.getElementById('sidebar');
@@ -24,7 +35,7 @@ function initSidebar() {
                         <a href="my-materials.html" class="nav-item ${currentPage === 'my-materials.html' ? 'active' : ''}">
                             <i class="fas fa-file-alt"></i> My Materials
                         </a>
-                        <a href="index.html" class="nav-item">
+                        <a href="#" class="nav-item" onclick="handleLogout()">
                             <i class="fas fa-sign-out-alt"></i> Logout
                         </a>
                     </nav>

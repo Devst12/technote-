@@ -402,16 +402,25 @@ app.delete('/materials/:id', authMiddleware, async (req, res) => {
 app.get('/materials', async (req, res) => {
     try {
         const semester = req.query.semester;
-        let filter = { status: 'approved' }; // Only show approved materials
+        const materialFilter = semester ? { semester: semester } : {}; // Material collection has no status field
+        const userUploadFilter = { status: 'approved' }; // UserUpload collection has status field
 
         if (semester) {
-            filter.semester = semester;
+            userUploadFilter.semester = semester;
         }
 
-        const materials = await Material.find(filter)
-            .sort({ uploadedAt: -1 });
+        // Get materials from both collections
+        const [materialsFromMaterial, materialsFromUserUpload] = await Promise.all([
+            Material.find(materialFilter).sort({ uploadedAt: -1 }),
+            UserUpload.find(userUploadFilter).sort({ uploadedAt: -1 })
+        ]);
 
-        res.json(materials);
+        // Combine and sort all materials
+        const allMaterials = [...materialsFromMaterial, ...materialsFromUserUpload].sort((a, b) =>
+            new Date(b.uploadedAt) - new Date(a.uploadedAt)
+        );
+
+        res.json(allMaterials);
 
     } catch (error) {
         console.error('Error fetching materials:', error);

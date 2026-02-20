@@ -1,57 +1,15 @@
+
 const mongoose = require('mongoose');
 
-const materialSchema = new mongoose.Schema({
-    title: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    type: {
-        type: String,
-        required: true,
-        enum: ['Notes', 'Syllabus', 'Previous Question', 'Slides', 'Lab Manual']
-    },
-    semester: {
-        type: String,
-        required: true
-    },
-    subject: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    description: {
-        type: String,
-        default: ''
-    },
-    fileName: {
-        type: String,
-        required: true
-    },
-    fileUrl: {
-        type: String,
-        required: true
-    },
-    uploaderEmail: {
-        type: String,
-        required: true
-    },
-    uploaderId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'AuthUser',
-        required: true
-    },
-    status: {
-        type: String,
-        enum: ['pending', 'approved', 'rejected'],
-        default: 'pending'
-    },
-    uploadedAt: {
-        type: Date,
-        default: Date.now
-    }
-}, {
-    timestamps: true
-});
+const Material = mongoose.model('Material', new mongoose.Schema({
+    title: String,
+    type: String,
+    semester: String,
+    subject: String,
+    description: String,
+    fileName: String,
+    fileUrl: String,
+    uploadedAt: { type: Date, default: Date.now }
+}));
 
-module.exports = mongoose.model('Material', materialSchema);
+module.exports = Material;
