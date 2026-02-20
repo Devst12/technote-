@@ -72,7 +72,8 @@ app.post('/login', async (req, res) => {
             return res.status(429).json({
                 success: false,
                 message: `Account locked. Please try again in ${timeLeft} seconds.`,
-                lockoutTime: timeLeft
+                lockoutTime: timeLeft,
+                isLocked: true
             });
         }
 
@@ -81,11 +82,11 @@ app.post('/login', async (req, res) => {
             // Increment login attempts
             user.loginAttempts += 1;
 
-            // Calculate lockout time based on number of attempts
+            // Lockout after 5 failed attempts with exponential backoff
             if (user.loginAttempts >= 5) {
-                const baseLockTime = 90; // 90 seconds for first lock
-                const attemptMultiplier = Math.floor((user.loginAttempts - 1) / 5); // Every 5 attempts, double lock time
-                const lockSeconds = baseLockTime * (Math.pow(2, attemptMultiplier - 1));
+                const attemptCount = Math.floor((user.loginAttempts - 1) / 5); // 0 for first 5 attempts, 1 for next 5, etc.
+                const baseLockTime = 300; // 5 minutes for first lockout
+                const lockSeconds = baseLockTime * Math.pow(2, attemptCount); // Double lock time each time
                 user.lockUntil = new Date(now.getTime() + lockSeconds * 1000);
             }
 
@@ -102,7 +103,8 @@ app.post('/login', async (req, res) => {
                 success: false,
                 message: message,
                 remainingAttempts: remainingAttempts,
-                isLocked: !!user.lockUntil
+                isLocked: !!user.lockUntil,
+                lockoutTime: user.lockUntil ? Math.ceil((user.lockUntil - now) / 1000) : null
             });
         }
 
@@ -264,15 +266,13 @@ app.get('/my-materials', authMiddleware, async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
 
-        // Get approved materials from both collections
+        // Get all materials from both collections with all statuses
         const [userUploads, materials] = await Promise.all([
             UserUpload.find({
-                uploaderId: req.user.userId,
-                status: 'approved'
+                uploaderId: req.user.userId
             }).sort({ uploadedAt: -1 }),
             Material.find({
-                uploaderId: req.user.userId,
-                status: 'approved'
+                uploaderId: req.user.userId
             }).sort({ uploadedAt: -1 })
         ]);
 

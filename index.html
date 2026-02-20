@@ -42,6 +42,8 @@
     const successMsg = document.getElementById('success-msg');
     const loginBtn = document.getElementById('loginBtn');
 
+    let countdownInterval;
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       errorMsg.style.display = 'none';
@@ -92,24 +94,31 @@
             errorMsg.style.border = '1px solid #f5c6cb';
             errorMsg.style.padding = '10px';
             errorMsg.style.borderRadius = '5px';
+
+            // If lockout time is provided, show countdown and disable login
+            if (data.lockoutTime) {
+              startCountdown(data.lockoutTime);
+            }
           } else if (data.remainingAttempts !== undefined) {
             // Warning message for remaining attempts - yellow background
             errorMsg.style.backgroundColor = '#fff3cd';
             errorMsg.style.border = '1px solid #ffeaa7';
             errorMsg.style.padding = '10px';
             errorMsg.style.borderRadius = '5px';
+            // Re-enable button
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Sign In';
           } else {
             // Default error message
             errorMsg.style.backgroundColor = 'transparent';
             errorMsg.style.border = 'none';
             errorMsg.style.padding = '0';
+            // Re-enable button
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Sign In';
           }
 
           errorMsg.style.display = 'block';
-
-          // Re-enable button
-          loginBtn.disabled = false;
-          loginBtn.textContent = 'Sign In';
         }
       } catch (err) {
         console.error('Login error:', err);
@@ -121,6 +130,31 @@
         loginBtn.textContent = 'Sign In';
       }
     });
+
+    function startCountdown(seconds) {
+      let remainingSeconds = seconds;
+
+      // Disable login form inputs
+      document.getElementById('email').disabled = true;
+      document.getElementById('password').disabled = true;
+      loginBtn.disabled = true;
+
+      // Update countdown every second
+      countdownInterval = setInterval(() => {
+        remainingSeconds--;
+        errorMsg.textContent = `Account locked. Please try again in ${remainingSeconds} seconds.`;
+
+        if (remainingSeconds <= 0) {
+          clearInterval(countdownInterval);
+          // Re-enable login form
+          document.getElementById('email').disabled = false;
+          document.getElementById('password').disabled = false;
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Sign In';
+          errorMsg.style.display = 'none';
+        }
+      }, 1000);
+    }
 
     // Check if user is already logged in
     window.addEventListener('DOMContentLoaded', () => {
